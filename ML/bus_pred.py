@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
-from statsmodels.tsa.arima.model import ARIMA
+# from statsmodels.tsa.arima.model import ARIMA
 import tensorflow as tf
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import LSTM, Dense
@@ -19,7 +19,6 @@ def count_sum(string):
 def flatten_2d_list(input_list):
     return [item for sublist in input_list for item in sublist]
 
-# LSTM 입력 데이터 생성
 def create_lstm_input(data, time_steps, next_day_steps):
     X, y = [], []
     for i in range(0, len(data)-time_steps, time_steps):
@@ -54,28 +53,28 @@ def set_data():
     return df
 '''
 def model_eval():
-    df = pd.read_excel("./output.xlsx")
+    df = pd.read_excel("./../output.xlsx")
 
     time_steps = 17  # 하루에 해당하는 시간대 수
     next_day_steps = 17  # 다음날 하루에 해당하는 시간대 수
 
-    # LSTM 입력 데이터 생성
     X, y = create_lstm_input(df['Passengers'], time_steps, next_day_steps)
 
-    # 데이터를 학습용과 테스트용으로 분리
     split_idx = int(len(X) * 0.9)
     X_train, X_test = X[:split_idx], X[split_idx:]
     y_train, y_test = y[:split_idx], y[split_idx:]
 
-
-    # LSTM 모델 생성과 학습
     model = Sequential()
-    model.add(LSTM(64, input_shape=(time_steps, 1), return_sequences=True))  # return_sequences=True로 설정하여 다음 LSTM 레이어로 출력 전달
-    model.add(LSTM(64))  # 두 번째 LSTM 레이어
+    model.add(LSTM(64, input_shape=(time_steps, 1), return_sequences=True))
+    model.add(LSTM(64))
+    model.add(Dense(64))
+    model.add(Dense(32))
     model.add(Dense(next_day_steps))
     model.compile(optimizer='adam', loss='mse')
-    model.fit(X_train, y_train, epochs=100, batch_size=17)
+    model.fit(X_train, y_train, epochs=50, batch_size=17)
     model.save("lstm_model")
+
+    return X_test
     
 def model_pred(data):
     loaded_model = load_model("lstm_model")
