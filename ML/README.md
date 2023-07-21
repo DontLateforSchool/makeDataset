@@ -7,3 +7,5 @@ host와 port는 자유롭게 변경이 가능합니다.
 ```
 uvicorn main:app --reload --host 0.0.0.0 --port 80
 ```
+
+배포된 주소/docs를 통하여 간단하게 스웨거를 확인할 수 있습니다.
